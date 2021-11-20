@@ -16,8 +16,10 @@ def cipher(text, k, alpha, cip_text, c=1):
             ciphered.append(ind_val[(val_ind[x] + c * K) % len(alpha)])
         else:
             ciphered.append(x)
+    cip_text.config(state='normal')
     cip_text.delete(1.0, END)
     cip_text.insert(1.0, ''.join(ciphered))
+    cip_text.config(state='disabled')
     root.update()
 
 
@@ -55,7 +57,7 @@ def cipher_text():
     text, k, v0, v1 = get_fields()
     if cipher_label['text'] != '':
         messagebox.showerror('Проверка этапа шифрования', 'Текст уже был зашифрован')
-    if check_fields(text, k, v0, v1):
+    elif check_fields(text, k, v0, v1):
         cipher_label['text'] = 'Криптограмма'
         decipher_label['text'] = ''
         if v1 == 'eng':
@@ -70,6 +72,8 @@ def decipher_text():
     text, k, v0, v1 = get_fields()
     if cipher_label['text'] == '':
         messagebox.showerror('Проверка этапа шифрования', 'Сначала нужно зашифровать текст')
+    elif len(text) != len(cipher_text.get(1.0, 'end-1c')):
+        messagebox.showerror('Проверка этапа шифрования', 'Зашифрованный текст был изменен')
     elif check_fields(text, k, v0, v1):
         cipher_label['text'] = ''
         decipher_label['text'] = 'Расшифрованный текст'
@@ -79,6 +83,12 @@ def decipher_text():
         elif v0 == 'ru':
             cipher(cipher_text.get(1.0, 'end-1c'), k, alpha_rus, decipher_text, c=-1)
             cipher_text.delete(1.0, END)
+
+
+def focus_text(event):
+   cipher_text.config(state='normal')
+   cipher_text.focus()
+   cipher_text.config(state='disabled')
 
 
 root = Tk()
@@ -137,5 +147,7 @@ cipher_text = Text(frame_mid, height=1, borderwidth=0)
 cipher_text.pack()
 decipher_text = Text(frame_bottom, height=1, borderwidth=0)
 decipher_text.pack()
+cipher_text.configure(state='disable')
+cipher_text.bind('<Button-1>', focus_text)
 
 root.mainloop()
